@@ -3,6 +3,7 @@ import express from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import jwt from 'jsonwebtoken'
 import {
   createRoom, joinRoom, getRoom, getRoomBySocket,
@@ -30,7 +31,8 @@ const io = new Server(httpServer, {
   },
 })
 
-app.use(cors({ origin: CORS_ORIGINS }))
+app.use(cors({ origin: CORS_ORIGINS, credentials: true }))
+app.use(cookieParser())
 app.use(express.json())
 
 app.get('/health', (_, res) => res.json({ ok: true }))
@@ -38,10 +40,14 @@ app.get('/health', (_, res) => res.json({ ok: true }))
 // ── Auth middleware ───────────────────────────────────────────────────────────
 
 function requireAuth(req, res, next) {
-  const auth = req.headers.authorization
-  if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: '인증 필요' })
+  const cookieToken = req.cookies?.chess109_token
+  const bearerToken = req.headers.authorization?.startsWith('Bearer ')
+    ? req.headers.authorization.slice(7)
+    : null
+  const token = cookieToken ?? bearerToken
+  if (!token) return res.status(401).json({ error: '인증 필요' })
   try {
-    req.user = jwt.verify(auth.slice(7), JWT_SECRET)
+    req.user = jwt.verify(token, JWT_SECRET)
     next()
   } catch {
     res.status(401).json({ error: '토큰이 유효하지 않습니다' })
@@ -54,6 +60,13 @@ function verifyToken(token) {
 
 // ── Auth routes ───────────────────────────────────────────────────────────────
 
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+}
+
 app.post('/auth/login', async (req, res) => {
   const { loginId, password } = req.body ?? {}
   if (!loginId || !password) {
@@ -64,6 +77,7 @@ app.post('/auth/login', async (req, res) => {
     const user   = await upsertUser(ssUser)
     const { createdAt, lastLogin, ...jwtPayload } = user
     const token  = jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: JWT_EXPIRES })
+    res.cookie('chess109_token', token, COOKIE_OPTS)
     res.json({ token, user })
   } catch (err) {
     const status = err.status === 401 ? 401 : 400
@@ -72,15 +86,24 @@ app.post('/auth/login', async (req, res) => {
 })
 
 app.get('/auth/me', (req, res) => {
-  const auth = req.headers.authorization
-  if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: '인증 필요' })
+  const cookieToken = req.cookies?.chess109_token
+  const bearerToken = req.headers.authorization?.startsWith('Bearer ')
+    ? req.headers.authorization.slice(7)
+    : null
+  const token = cookieToken ?? bearerToken
+  if (!token) return res.status(401).json({ error: '인증 필요' })
   try {
-    const user = jwt.verify(auth.slice(7), JWT_SECRET)
+    const user = jwt.verify(token, JWT_SECRET)
     const { iat, exp, ...userFields } = user
-    res.json({ user: userFields })
+    res.json({ user: userFields, token })
   } catch {
     res.status(401).json({ error: '토큰이 유효하지 않습니다' })
   }
+})
+
+app.post('/auth/logout', (req, res) => {
+  res.clearCookie('chess109_token', COOKIE_OPTS)
+  res.json({ ok: true })
 })
 
 // ── Game / ranking routes ─────────────────────────────────────────────────────
