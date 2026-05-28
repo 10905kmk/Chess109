@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import styles from './RankingPage.module.css'
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || ''
+
 const MEDALS = ['🥇', '🥈', '🥉']
 
 export default function RankingPage() {
@@ -14,7 +16,7 @@ export default function RankingPage() {
   const [error,   setError]   = useState('')
 
   useEffect(() => {
-    fetch('/api/ranking')
+    fetch(`${SERVER_URL}/api/ranking`)
       .then(r => r.ok ? r.json() : Promise.reject(r))
       .then(data => setRanking(data.ranking))
       .catch(() => setError('랭킹을 불러오지 못했습니다'))

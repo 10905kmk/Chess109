@@ -9,6 +9,8 @@ import GameStatus from '../components/GameStatus'
 import styles from './GamePage.module.css'
 import aiStyles from './AiGamePage.module.css'
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || ''
+
 const DIFFICULTIES = [
   { label: '입문', depth: 5, skill: 0 },
   { label: '초급', depth: 8, skill: 5 },
@@ -73,7 +75,7 @@ export default function AiGamePage() {
     const result = isCheckmate
       ? (turn === 'w' ? 'black' : 'white')
       : 'draw'
-    fetch('/api/game/result', {
+    fetch(`${SERVER_URL}/api/game/result`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

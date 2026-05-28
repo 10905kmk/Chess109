@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import styles from './MyPage.module.css'
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || ''
+
 function StatCard({ title, stats }) {
   const winRate = stats.total > 0
     ? Math.round((stats.wins / stats.total) * 100)
@@ -58,7 +60,7 @@ export default function MyPage() {
   const [error,   setError]   = useState('')
 
   useEffect(() => {
-    fetch('/api/me/stats', {
+    fetch(`${SERVER_URL}/api/me/stats`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     })
       .then(r => r.ok ? r.json() : Promise.reject(r))
