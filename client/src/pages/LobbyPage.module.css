@@ -1,0 +1,173 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 48px;
+}
+
+.hero {
+  text-align: center;
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 8vw, 80px);
+  font-weight: 700;
+  background: linear-gradient(135deg, #e6edf3 0%, #8b949e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.userBadge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.userName {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.navBtn {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.navBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.logoutBtn {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.logoutBtn:hover {
+  color: #f87171;
+  border-color: #f87171;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--card-color);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card:hover {
+  border-color: var(--card-color);
+  transform: translateX(4px);
+  background: var(--bg-panel);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  width: 48px;
+  text-align: center;
+}
+
+.cardContent {
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.cardDesc {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.arrow {
+  color: var(--text-muted);
+  font-size: 18px;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.card:hover .arrow {
+  color: var(--card-color);
+  transform: translateX(4px);
+}
+
+.cardDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cardDisabled:hover {
+  border-color: var(--border);
+  transform: none;
+  background: var(--bg-card);
+}
+
+.cardDisabled:hover::before {
+  opacity: 0;
+}
+
+.cardDisabled:hover .arrow {
+  color: var(--text-muted);
+  transform: none;
+}

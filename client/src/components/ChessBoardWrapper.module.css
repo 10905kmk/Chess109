@@ -1,0 +1,74 @@
+.boardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.promotionOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 6px;
+}
+
+.promotionModal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+}
+
+.promotionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.promotionPieces {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.promotionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 10px;
+  transition: all 0.15s;
+  color: var(--text-primary);
+  min-width: 64px;
+}
+
+.promotionBtn:hover {
+  border-color: var(--accent);
+  background: rgba(88, 166, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.promotionSymbol {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.promotionLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
