@@ -63,6 +63,9 @@ export default function LobbyPage() {
                 </button>
               </>
             )}
+            <button className={styles.navBtn} onClick={() => navigate('/feedback')}>
+              건의하기
+            </button>
             <button className={styles.logoutBtn} onClick={handleLogout}>
               {user.isGuest ? '로그인' : '로그아웃'}
             </button>

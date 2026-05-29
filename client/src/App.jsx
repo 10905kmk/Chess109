@@ -8,6 +8,7 @@ import OnlineGamePage from './pages/OnlineGamePage'
 import MatchPage from './pages/MatchPage'
 import MyPage from './pages/MyPage'
 import RankingPage from './pages/RankingPage'
+import FeedbackPage from './pages/FeedbackPage'
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth()
@@ -36,6 +37,7 @@ export default function App() {
       <Route path="/match" element={<RequireFullAuth><MatchPage /></RequireFullAuth>} />
       <Route path="/online" element={<RequireAuth><OnlineGamePage /></RequireAuth>} />
       <Route path="/online/:roomId" element={<RequireAuth><OnlineGamePage /></RequireAuth>} />
+      <Route path="/feedback" element={<RequireAuth><FeedbackPage /></RequireAuth>} />
     </Routes>
   )
 }
