@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import styles from './FeedbackPage.module.css'
 
-const TO = 'kimjy0905@gmail.com'
+const TO = '26_1229kmk@dshs.kr'
 
 export default function FeedbackPage() {
   const navigate = useNavigate()
