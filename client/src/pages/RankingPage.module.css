@@ -54,7 +54,8 @@
 .tableWrap {
   border: 1px solid var(--border);
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
@@ -116,3 +117,17 @@
 .loss { color: var(--red); }
 .draw { color: var(--text-secondary); }
 .rate { color: var(--accent); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .content {
+    padding: 20px 12px;
+  }
+  .table {
+    min-width: 340px;
+  }
+  .table th,
+  .table td {
+    padding: 10px 10px;
+    font-size: 13px;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { Chessboard } from 'react-chessboard'
 import styles from './ChessBoardWrapper.module.css'
 
@@ -69,6 +69,20 @@ export default function ChessBoardWrapper({
   lastMove = null,
   boardWidth = 560,
 }) {
+  const containerRef = useRef(null)
+  const [computedWidth, setComputedWidth] = useState(boardWidth)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new ResizeObserver(([entry]) => {
+      setComputedWidth(Math.min(boardWidth, Math.floor(entry.contentRect.width)))
+    })
+    observer.observe(el)
+    setComputedWidth(Math.min(boardWidth, Math.floor(el.offsetWidth)))
+    return () => observer.disconnect()
+  }, [boardWidth])
+
   const [selectedSquare, setSelectedSquare] = useState(null)
   const [optionSquares, setOptionSquares] = useState({})
   const [pendingPromotion, setPendingPromotion] = useState(null)
@@ -164,7 +178,7 @@ export default function ChessBoardWrapper({
   }, [pendingPromotion, onMove, clearSelection])
 
   return (
-    <div className={styles.boardContainer}>
+    <div className={styles.boardContainer} ref={containerRef}>
       <Chessboard
         position={fen}
         onSquareClick={onSquareClick}
@@ -174,7 +188,7 @@ export default function ChessBoardWrapper({
         promotionDialogVariant="modal"
         boardOrientation={orientation}
         customSquareStyles={customSquareStyles}
-        boardWidth={boardWidth}
+        boardWidth={computedWidth}
         customBoardStyle={{ borderRadius: '6px', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
         customDarkSquareStyle={{ backgroundColor: 'var(--black-square)' }}
         customLightSquareStyle={{ backgroundColor: 'var(--white-square)' }}
