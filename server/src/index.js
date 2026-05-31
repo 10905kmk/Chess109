@@ -188,7 +188,7 @@ io.on('connection', (socket) => {
       return
     }
     socket.join(roomId)
-    socket.emit('room:joined', { color: result.color, fen: result.room.game.fen() })
+    socket.emit('room:joined', { color: result.color, fen: result.room.game.fen(), roomId })
     socket.to(roomId).emit('room:opponentJoined', { color: result.color })
   })
 

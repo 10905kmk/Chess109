@@ -39,7 +39,8 @@ export default function OnlineGamePage() {
       setPhase('waiting')
     })
 
-    socket.on('room:joined', ({ color, fen: initialFen }) => {
+    socket.on('room:joined', ({ color, fen: initialFen, roomId: joinedRoomId }) => {
+      if (joinedRoomId) setRoomId(joinedRoomId)
       setPlayerColor(color)
       if (initialFen) loadFen(initialFen)
       setOpponentConnected(true)
@@ -71,6 +72,15 @@ export default function OnlineGamePage() {
       socket.emit('room:join', { roomId: paramRoomId, token: getToken() })
     }
 
+    const handleReconnect = () => {
+      const currentPhase = phaseRef.current
+      const currentRoomId = roomIdRef.current
+      if ((currentPhase === 'playing' || currentPhase === 'waiting') && currentRoomId) {
+        socket.emit('room:join', { roomId: currentRoomId, token: getToken() })
+      }
+    }
+    socket.io.on('reconnect', handleReconnect)
+
     return () => {
       socket.off('room:created')
       socket.off('room:joined')
@@ -79,6 +89,7 @@ export default function OnlineGamePage() {
       socket.off('game:move')
       socket.off('game:reset')
       socket.off('room:error')
+      socket.io.off('reconnect', handleReconnect)
       socket.disconnect()
     }
   }, [])
@@ -92,16 +103,18 @@ export default function OnlineGamePage() {
     const id = inputRoomId.trim().toUpperCase()
     if (!id) return
     setError('')
+    setRoomId(id)
     socket.emit('room:join', { roomId: id, token: getToken() })
   }
 
-  // isMyTurn을 ref로 추적해서 handleMove 내부에서 항상 최신값 참조
   const isMyTurnRef = useRef(isMyTurn)
   isMyTurnRef.current = isMyTurn
   const isGameOverRef = useRef(isGameOver)
   isGameOverRef.current = isGameOver
   const roomIdRef = useRef(roomId)
   roomIdRef.current = roomId
+  const phaseRef = useRef(phase)
+  phaseRef.current = phase
 
   const handleMove = useCallback((move) => {
     if (!isMyTurnRef.current || isGameOverRef.current) return null
