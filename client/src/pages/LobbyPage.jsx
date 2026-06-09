@@ -32,6 +32,13 @@ const MODES = [
     description: '같은 화면에서 두 명이 번갈아 두기',
     color: '#3fb950',
   },
+  {
+    id: 'variant',
+    label: '변형체스',
+    icon: '♞',
+    description: '960, 3체크, KOTH, 안티체스',
+    color: '#8b5cf6',
+  },
 ]
 
 export default function LobbyPage() {

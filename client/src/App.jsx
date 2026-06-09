@@ -9,6 +9,10 @@ import MatchPage from './pages/MatchPage'
 import MyPage from './pages/MyPage'
 import RankingPage from './pages/RankingPage'
 import FeedbackPage from './pages/FeedbackPage'
+import VariantSelectPage from './pages/VariantSelectPage'
+import VariantLocalPage from './pages/VariantLocalPage'
+import VariantAiPage from './pages/VariantAiPage'
+import VariantOnlinePage from './pages/VariantOnlinePage'
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth()
@@ -38,6 +42,11 @@ export default function App() {
       <Route path="/online" element={<RequireAuth><OnlineGamePage /></RequireAuth>} />
       <Route path="/online/:roomId" element={<RequireAuth><OnlineGamePage /></RequireAuth>} />
       <Route path="/feedback" element={<RequireAuth><FeedbackPage /></RequireAuth>} />
+      <Route path="/variant" element={<RequireAuth><VariantSelectPage /></RequireAuth>} />
+      <Route path="/variant/:variantId/local" element={<RequireAuth><VariantLocalPage /></RequireAuth>} />
+      <Route path="/variant/:variantId/ai" element={<RequireAuth><VariantAiPage /></RequireAuth>} />
+      <Route path="/variant/:variantId/online" element={<RequireAuth><VariantOnlinePage /></RequireAuth>} />
+      <Route path="/variant/:variantId/online/:roomId" element={<RequireAuth><VariantOnlinePage /></RequireAuth>} />
     </Routes>
   )
 }
