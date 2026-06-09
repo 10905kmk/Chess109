@@ -1,6 +1,6 @@
 import { Chess960Adapter } from './adapters/Chess960Adapter.js'
-import { ThreeCheckAdapter, ThreeCheckStatus } from './adapters/ThreeCheckAdapter.js'
-import { KothAdapter, KothCenterHighlight } from './adapters/KothAdapter.js'
+import { ThreeCheckAdapter, ThreeCheckStatus } from './adapters/ThreeCheckAdapter.jsx'
+import { KothAdapter, KothCenterHighlight } from './adapters/KothAdapter.jsx'
 import { AntichessAdapter } from './adapters/AntichessAdapter.js'
 
 export const VARIANTS = [
