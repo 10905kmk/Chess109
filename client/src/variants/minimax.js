@@ -1,3 +1,6 @@
+// Terminal-only eval: returns win/loss/draw for ended games, 0 for all other positions.
+// The AI plays randomly among moves that don't immediately lead to a loss within `depth`.
+// This is acceptable for a fallback AI where variant-specific piece values are unknown.
 function evaluate(engine, color) {
   if (engine.isGameOver()) {
     const winner = engine.winner()

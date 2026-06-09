@@ -31,6 +31,9 @@ export function useFairyStockfish({ uciVariant, uciChess960 = false, depth = 12,
     worker.postMessage('uci')
 
     return () => {
+      resolveRef.current?.(null)
+      resolveRef.current = null
+      setReady(false)
       worker.postMessage('quit')
       worker.terminate()
     }

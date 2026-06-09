@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { getVariant } from './index.js'
 
 export function useVariantGame(variantId) {
@@ -44,6 +44,14 @@ export function useVariantGame(variantId) {
   const getLegalMoves = useCallback((square) => {
     return engineRef.current?.legalMoves(square) ?? []
   }, [])
+
+  useEffect(() => {
+    if (!variant) return
+    engineRef.current = variant.createEngine()
+    setTick(t => t + 1)
+    setHistory([])
+    setExtraState(engineRef.current.extraState())
+  }, [variantId])
 
   const engine = engineRef.current
 
