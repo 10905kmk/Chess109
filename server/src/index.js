@@ -273,7 +273,9 @@ io.on('connection', (socket) => {
     const payload = verifyToken(token)
     const startFen = variantId === 'chess960' ? generateChess960Fen() : VARIANT_START_FENS[variantId]
     if (!startFen) { socket.emit('variant:error', { message: '알 수 없는 변형입니다' }); return }
-    const { roomId, creatorColor } = createVariantRoom(socket.id, variantId, startFen, payload?.email ?? null, preferredColor)
+    const roomResult = createVariantRoom(socket.id, variantId, startFen, payload?.email ?? null, preferredColor)
+    if (roomResult.error) { socket.emit('variant:error', { message: roomResult.error }); return }
+    const { roomId, creatorColor } = roomResult
     socket.join(roomId)
     socket.emit('variant:created', { roomId, color: creatorColor, startFen })
   })

@@ -31,7 +31,12 @@ function createPosition(variantId, fen) {
 export function createVariantRoom(socketId, variantId, startFen, email = null, preferredColor = 'random') {
   const roomId = generateRoomId()
   const creatorColor = preferredColor === 'w' ? 'w' : preferredColor === 'b' ? 'b' : (Math.random() < 0.5 ? 'w' : 'b')
-  const pos = createPosition(variantId, startFen)
+  let pos
+  try {
+    pos = createPosition(variantId, startFen)
+  } catch {
+    return { error: '유효하지 않은 시작 FEN' }
+  }
 
   variantRooms.set(roomId, {
     id: roomId,
