@@ -2,7 +2,7 @@
 //
 // Patch `onmessage` to support custom message
 //
-const oldOnmessage = self.onmessage;
+var oldOnmessage = self.onmessage;
 
 self.onmessage = (e) => {
   if (e.data.cmd === "custom") {

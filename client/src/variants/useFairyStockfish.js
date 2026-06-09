@@ -9,10 +9,22 @@ export function useFairyStockfish({ uciVariant, uciChess960 = false, depth = 12,
 
   useEffect(() => {
     if (!uciVariant) return  // don't spawn worker if no variant specified
-    const worker = new Worker(FAIRY_STOCKFISH_PATH)
+    const workerUrl = new URL(FAIRY_STOCKFISH_PATH, window.location.origin).href + '?main=1&t=' + Date.now();
+    console.log("[FS] Initializing worker with path:", workerUrl);
+    const worker = new Worker(workerUrl)
+    console.log('[FS] Worker created:', worker);
     workerRef.current = worker
 
+    worker.onerror = (e) => {
+      console.error('[FS] Worker Error:', e.message, e)
+    }
+
+    worker.onmessageerror = (e) => {
+      console.error('[FS] Message Error:', e)
+    }
+
     worker.onmessage = (e) => {
+      console.log('[FS] Message received:', e.data)
       const msg = typeof e.data === 'string' ? e.data : e.data?.toString?.() ?? ''
       if (msg === 'uciok') {
         if (uciVariant) worker.postMessage(`setoption name UCI_Variant value ${uciVariant}`)

@@ -1,7 +1,9 @@
 
+console.log('[FairyStockfish] Script loading...');
 var Stockfish = (function() {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
+  if (typeof importScripts === 'function' && !_scriptDir) _scriptDir = self.location.href;
   return (
 function(Stockfish) {
   Stockfish = Stockfish || {};
@@ -160,3 +162,33 @@ else if (typeof define === 'function' && define['amd'])
   define([], function() { return Stockfish; });
 else if (typeof exports === 'object')
   exports["Stockfish"] = Stockfish;
+
+self.Stockfish = Stockfish;
+
+if (typeof importScripts === 'function' && self.location.href.indexOf('main=1') !== -1) {
+  console.log('[FairyStockfish] Main Worker mode detected');
+  var _instance = null;
+  var _queue = [];
+  self.onmessage = function(e) {
+    if (_instance) {
+      _instance.postMessage(e.data);
+    } else {
+      _queue.push(e.data);
+    }
+  };
+  Stockfish({
+    mainScriptUrlOrBlob: self.location.href
+  }).then(function(instance) {
+    _instance = instance;
+    console.log('[FairyStockfish] Engine initialized');
+    _instance.addMessageListener(function(line) {
+      self.postMessage(line);
+    });
+    while (_queue.length > 0) {
+      _instance.postMessage(_queue.shift());
+    }
+  });
+}
+
+
+
