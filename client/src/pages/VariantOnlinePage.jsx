@@ -89,7 +89,7 @@ export default function VariantOnlinePage() {
     if (!isMyTurnRef.current || isGameOverRef.current) return null
     const result = makeMove(move)
     if (result) {
-      socket.emit('variant:move', { roomId: roomIdRef.current, from: move.from, to: move.to, promotion: move.promotion || 'q' })
+      socket.emit('variant:move', { roomId: roomIdRef.current, from: move.from, to: move.to, promotion: move.promotion })
     }
     return result
   }, [makeMove])
@@ -130,6 +130,18 @@ export default function VariantOnlinePage() {
             </div>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if (phase === 'joining') {
+    return (
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <button className={styles.backBtn} onClick={() => navigate('/variant')}>← 나가기</button>
+          <h2 className={styles.pageTitle}>방 연결 중...</h2>
+          <div />
+        </header>
       </div>
     )
   }

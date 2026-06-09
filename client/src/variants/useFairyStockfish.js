@@ -8,6 +8,7 @@ export function useFairyStockfish({ uciVariant, uciChess960 = false, depth = 12,
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
+    if (!uciVariant) return  // don't spawn worker if no variant specified
     const worker = new Worker(FAIRY_STOCKFISH_PATH)
     workerRef.current = worker
 

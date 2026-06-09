@@ -43,12 +43,7 @@ export default function VariantAiPage() {
   const lastMove = history.length > 0 ? history[history.length - 1] : null
   const isPlayerTurn = turn === playerColor
 
-  const isPlayerTurnRef = useRef(isPlayerTurn)
-  isPlayerTurnRef.current = isPlayerTurn
-  const isGameOverRef = useRef(isGameOver)
-  isGameOverRef.current = isGameOver
-
-  const doAiMove = useCallback(async (currentFen) => {
+  const doAiMove = useCallback(async (currentFen, depth) => {
     if (thinkingRef.current) return
     thinkingRef.current = true
     setIsThinking(true)
@@ -63,7 +58,7 @@ export default function VariantAiPage() {
       await new Promise(r => setTimeout(r, 0))
       const currentEngine = getEngine()
       if (currentEngine) {
-        move = getBestMoveSync(currentEngine, 3)
+        move = getBestMoveSync(currentEngine, depth)
       }
     }
 
@@ -74,8 +69,8 @@ export default function VariantAiPage() {
 
   useEffect(() => {
     if (!gameStarted || isGameOver || isPlayerTurn || !engineReady) return
-    doAiMove(fen)
-  }, [gameStarted, isGameOver, isPlayerTurn, engineReady, fen, doAiMove])
+    doAiMove(fen, diff.depth)
+  }, [gameStarted, isGameOver, isPlayerTurn, engineReady, fen, doAiMove, diff.depth])
 
   const handleMove = useCallback((move) => {
     if (!isPlayerTurn || isGameOver) return null
