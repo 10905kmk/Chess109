@@ -54,9 +54,15 @@ export class BaseAdapter {
     const destSet = this._pos.dests(sq)
     if (!destSet || destSet.isEmpty()) return []
 
+    const movingPiece = this._pos.board.get(sq)
     const moves = []
     for (const dest of destSet) {
-      const capturedPiece = this._pos.board.get(dest)
+      let capturedPiece = this._pos.board.get(dest)
+      // En passant: pawn moves diagonally to empty square
+      if (!capturedPiece && movingPiece?.role === 'pawn' && dest === this._pos.epSquare) {
+        const capturedSq = (sq & ~7) * 1 + (dest & 7)  // same rank as from, file of dest
+        capturedPiece = this._pos.board.get(capturedSq)
+      }
       moves.push({
         from: square,
         to: makeSquare(dest),
@@ -75,23 +81,21 @@ export class BaseAdapter {
     const chessMove = { from: fromSq, to: toSq }
     if (promotion) chessMove.promotion = PROMO_ROLE[promotion] ?? 'queen'
 
-    // Compute SAN before mutating position
-    let san
-    try {
-      san = makeSan(this._pos, chessMove)
-    } catch {
-      return null
-    }
+    if (!this._pos.isLegal(chessMove)) return null
 
-    const capturedPiece = this._pos.board.get(toSq)
+    // Compute SAN before mutating position
+    const san = makeSan(this._pos, chessMove)
+
     const movingPiece = this._pos.board.get(fromSq)
+    let capturedPiece = this._pos.board.get(toSq)
+    // En passant: pawn moves diagonally to empty square
+    if (!capturedPiece && movingPiece?.role === 'pawn' && toSq === this._pos.epSquare) {
+      const capturedSq = (fromSq & ~7) * 1 + (toSq & 7)
+      capturedPiece = this._pos.board.get(capturedSq)
+    }
     const colorBefore = this._pos.turn === 'white' ? 'w' : 'b'
 
-    try {
-      this._pos.play(chessMove)
-    } catch {
-      return null
-    }
+    this._pos.play(chessMove)
 
     return {
       from,
