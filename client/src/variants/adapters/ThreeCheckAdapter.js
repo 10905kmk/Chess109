@@ -1,5 +1,5 @@
 import { ThreeCheck } from 'chessops/variant'
-import { parseFen } from 'chessops/fen'
+import { parseFen, makeFen } from 'chessops/fen'
 import { BaseAdapter } from '../BaseAdapter.js'
 
 const THREE_CHECK_START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0'
@@ -17,6 +17,13 @@ export class ThreeCheckAdapter extends BaseAdapter {
 
   clone() {
     return new ThreeCheckAdapter(this._pos.clone())
+  }
+
+  fen() {
+    const parts = makeFen(this._pos.toSetup()).split(' ')
+    // ThreeCheck has 7 parts: board turn castling ep remainingChecks halfmove fullmove
+    // We skip the remainingChecks field (index 4) for react-chessboard compatibility
+    return [parts[0], parts[1], parts[2], parts[3], parts[5], parts[6]].join(' ')
   }
 
   // Returns how many times each color has been checked (0–3)
