@@ -9,8 +9,37 @@ import {
   createRoom, joinRoom, getRoom, getRoomBySocket,
   applyMove, resetRoom, removePlayer,
 } from './gameManager.js'
+import {
+  createVariantRoom, joinVariantRoom, getVariantRoomBySocket,
+  applyVariantMove, resetVariantRoom, removeVariantPlayer,
+} from './variantGameManager.js'
 import { superschoolAuth } from './superschool.js'
 import { upsertUser, recordGame, getRanking, getUserStats } from './db.js'
+
+function generateChess960Fen() {
+  const pieces = Array(8).fill(null)
+  const darkIdx = [0, 2, 4, 6]; pieces[darkIdx[Math.floor(Math.random() * 4)]] = 'B'
+  const lightIdx = [1, 3, 5, 7]; pieces[lightIdx[Math.floor(Math.random() * 4)]] = 'B'
+  const empty1 = pieces.flatMap((p, i) => p === null ? [i] : [])
+  pieces[empty1[Math.floor(Math.random() * empty1.length)]] = 'Q'
+  const empty2 = pieces.flatMap((p, i) => p === null ? [i] : [])
+  const k1 = Math.floor(Math.random() * 5); let k2 = Math.floor(Math.random() * 4); if (k2 >= k1) k2++
+  pieces[empty2[Math.min(k1, k2)]] = 'N'; pieces[empty2[Math.max(k1, k2)]] = 'N'
+  const empty3 = pieces.flatMap((p, i) => p === null ? [i] : [])
+  pieces[empty3[0]] = 'R'; pieces[empty3[1]] = 'K'; pieces[empty3[2]] = 'R'
+  const files = 'abcdefgh'
+  const qR = files[empty3[0]].toUpperCase(); const kR = files[empty3[2]].toUpperCase()
+  const castling = `${kR}${qR}${kR.toLowerCase()}${qR.toLowerCase()}`
+  const w = pieces.join(''); const b = w.toLowerCase()
+  return `${b}/pppppppp/8/8/8/8/PPPPPPPP/${w} w ${castling} - 0 1`
+}
+
+const VARIANT_START_FENS = {
+  chess960:      null,
+  threecheck:    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 +0+0',
+  kingofthehill: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+  antichess:     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1',
+}
 
 const JWT_SECRET = process.env.JWT_SECRET || 'chess109-dev-secret-change-in-prod'
 const JWT_EXPIRES = '7d'
@@ -240,6 +269,38 @@ io.on('connection', (socket) => {
     }
   })
 
+  socket.on('variant:create', ({ token, variantId, preferredColor = 'random' } = {}) => {
+    const payload = verifyToken(token)
+    const startFen = variantId === 'chess960' ? generateChess960Fen() : VARIANT_START_FENS[variantId]
+    if (!startFen) { socket.emit('variant:error', { message: '알 수 없는 변형입니다' }); return }
+    const { roomId, creatorColor } = createVariantRoom(socket.id, variantId, startFen, payload?.email ?? null, preferredColor)
+    socket.join(roomId)
+    socket.emit('variant:created', { roomId, color: creatorColor, startFen })
+  })
+
+  socket.on('variant:join', ({ roomId, variantId, token }) => {
+    const payload = verifyToken(token)
+    const result = joinVariantRoom(roomId, socket.id, payload?.email ?? null)
+    if (result.error) { socket.emit('variant:error', { message: result.error }); return }
+    socket.join(roomId)
+    socket.emit('variant:joined', { color: result.color, roomId, startFen: result.room.startFen })
+    socket.to(roomId).emit('variant:opponentJoined', { color: result.color })
+  })
+
+  socket.on('variant:move', ({ roomId, from, to, promotion }) => {
+    const result = applyVariantMove(roomId, socket.id, { from, to, promotion })
+    if (result.error) { socket.emit('variant:error', { message: result.error }); return }
+    socket.to(roomId).emit('variant:move', { from, to, promotion })
+    if (result.gameOver) {
+      io.to(roomId).emit('game:over', { result: result.gameOver.result })
+    }
+  })
+
+  socket.on('variant:reset', ({ roomId }) => {
+    const ok = resetVariantRoom(roomId)
+    if (ok) io.to(roomId).emit('variant:reset')
+  })
+
   socket.on('disconnect', () => {
     console.log('disconnected:', socket.id)
     const qIdx = matchQueue.findIndex(p => p.socketId === socket.id)
@@ -247,6 +308,10 @@ io.on('connection', (socket) => {
     const room = removePlayer(socket.id)
     if (room) {
       io.to(room.id).emit('room:opponentLeft')
+    }
+    const variantRoom = removeVariantPlayer(socket.id)
+    if (variantRoom) {
+      io.to(variantRoom.id).emit('variant:opponentLeft')
     }
   })
 })
